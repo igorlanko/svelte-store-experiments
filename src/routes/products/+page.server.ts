@@ -13,6 +13,7 @@ export const load: PageServerLoad = async () => {
 	})
 
 	if (!response.ok) {
+		console.error('Failed to fetch products from the API', response)
 		error(400, 'Failed to fetch products')
 	}
 
