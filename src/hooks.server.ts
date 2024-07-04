@@ -14,27 +14,27 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const allowedOrigins = [API_URL, APP_URL]
 
 	// Bypass Vercel's protection if it's preview environment
-	if (APP_ENV === 'preview') {
-		console.log('Bypassing Vercel protection for request:', event.request.url)
+	// if (APP_ENV === 'preview') {
+	// 	console.log('Bypassing Vercel protection for request:', event.request.url)
 
-		// Create new request with the bypass header
-		const newRequest = new Request(event.request, {
-			headers: new Headers(event.request.headers)
-		})
-		newRequest.headers.set('x-vercel-protection-bypass', VERCEL_AUTOMATION_BYPASS_SECRET)
+	// 	// Create new request with the bypass header
+	// 	const newRequest = new Request(event.request, {
+	// 		headers: new Headers(event.request.headers)
+	// 	})
+	// 	newRequest.headers.set('x-vercel-protection-bypass', VERCEL_AUTOMATION_BYPASS_SECRET)
 
-		// Log the new request without the cookie header
-		const { headers, ...newRequestWithoutHeaders } = newRequest
-		const headersWithoutCookies = new Headers(headers)
-		headersWithoutCookies.delete('cookie')
-		console.log('New request with the bypass header (without fwd cookies):', {
-			...newRequestWithoutHeaders,
-			headers: headersWithoutCookies
-		})
+	// 	// Log the new request without the cookie header
+	// 	const { headers, ...newRequestWithoutHeaders } = newRequest
+	// 	const headersWithoutCookies = new Headers(headers)
+	// 	headersWithoutCookies.delete('cookie')
+	// 	console.log('New request with the bypass header (without fwd cookies):', {
+	// 		...newRequestWithoutHeaders,
+	// 		headers: headersWithoutCookies
+	// 	})
 
-		// Use the new request
-		event.request = newRequest
-	}
+	// 	// Use the new request
+	// 	event.request = newRequest
+	// }
 
 	// CORS for API routes since CSRF disabled in `svelte.config.js`
 	// and currently it's not possible to allow specific origins
