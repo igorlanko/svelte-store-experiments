@@ -1,10 +1,15 @@
-import { getApiUrl } from '$lib/getEnvs'
+// Types
 import type { Actions, PageServerLoad } from './$types'
+
+// Data
 import { error } from '@sveltejs/kit'
 
-const API_URL = getApiUrl()
+// Utils
+import { getApiUrl } from '$lib/getEnvs'
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ fetch }) => {
+	const API_URL = getApiUrl()
+
 	const response = await fetch(`${API_URL}/products`, {
 		method: 'GET',
 		headers: {
