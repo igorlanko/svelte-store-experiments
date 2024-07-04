@@ -1,40 +1,17 @@
 // Types
-import { type Handle } from '@sveltejs/kit'
+import { type Handle, type HandleFetch } from '@sveltejs/kit'
 
 // ENV
 import { VERCEL_AUTOMATION_BYPASS_SECRET } from '$env/static/private'
 import { getAppEnv, getAppUrl, getApiUrl } from '$lib/getEnvs'
-const APP_ENV = getAppEnv()
-const APP_URL = getAppUrl()
-const API_URL = getApiUrl()
 
 export const handle: Handle = async ({ event, resolve }) => {
+	const APP_URL = getAppUrl()
+	const API_URL = getApiUrl()
+
 	// CORS
 	const origin = event.request.headers.get('origin') || null
 	const allowedOrigins = [API_URL, APP_URL]
-
-	// Bypass Vercel's protection if it's preview environment
-	// if (APP_ENV === 'preview') {
-	// 	console.log('Bypassing Vercel protection for request:', event.request.url)
-
-	// 	// Create new request with the bypass header
-	// 	const newRequest = new Request(event.request, {
-	// 		headers: new Headers(event.request.headers)
-	// 	})
-	// 	newRequest.headers.set('x-vercel-protection-bypass', VERCEL_AUTOMATION_BYPASS_SECRET)
-
-	// 	// Log the new request without the cookie header
-	// 	const { headers, ...newRequestWithoutHeaders } = newRequest
-	// 	const headersWithoutCookies = new Headers(headers)
-	// 	headersWithoutCookies.delete('cookie')
-	// 	console.log('New request with the bypass header (without fwd cookies):', {
-	// 		...newRequestWithoutHeaders,
-	// 		headers: headersWithoutCookies
-	// 	})
-
-	// 	// Use the new request
-	// 	event.request = newRequest
-	// }
 
 	// CORS for API routes since CSRF disabled in `svelte.config.js`
 	// and currently it's not possible to allow specific origins
@@ -73,4 +50,19 @@ export const handle: Handle = async ({ event, resolve }) => {
 			return name === 'content-range'
 		}
 	})
+}
+
+export const handleFetch: HandleFetch = async ({ request, fetch }) => {
+	const APP_ENV = getAppEnv()
+
+	const newRequest = new Request(request, {
+		headers: new Headers(request.headers)
+	})
+
+	if (APP_ENV === 'preview') {
+		// Bypass Vercel's protection if it's preview environment
+		newRequest.headers.set('x-vercel-protection-bypass', VERCEL_AUTOMATION_BYPASS_SECRET)
+	}
+
+	return fetch(newRequest)
 }

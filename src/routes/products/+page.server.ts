@@ -4,21 +4,16 @@ import type { Actions, PageServerLoad } from './$types'
 // Data
 import { error } from '@sveltejs/kit'
 
-// ENV
-import { VERCEL_AUTOMATION_BYPASS_SECRET } from '$env/static/private'
-
 // Utils
-import { getApiUrl, getAppEnv } from '$lib/getEnvs'
+import { getApiUrl } from '$lib/getEnvs'
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ fetch }) => {
 	const API_URL = getApiUrl()
-	const APP_ENV = getAppEnv()
 
 	const response = await fetch(`${API_URL}/products`, {
 		method: 'GET',
 		headers: {
-			'Content-Type': 'application/json',
-			'x-vercel-protection-bypass': APP_ENV === 'preview' ? VERCEL_AUTOMATION_BYPASS_SECRET : ''
+			'Content-Type': 'application/json'
 		}
 	})
 
