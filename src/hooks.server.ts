@@ -5,6 +5,8 @@ import { type Handle, type HandleFetch } from '@sveltejs/kit'
 import { VERCEL_AUTOMATION_BYPASS_SECRET } from '$env/static/private'
 import { getAppEnv, getAppUrl, getApiUrl } from '$lib/getEnvs'
 
+// Libs
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const APP_URL = getAppUrl()
 	const API_URL = getApiUrl()
@@ -17,8 +19,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// and currently it's not possible to allow specific origins
 	// https://snippets.khromov.se/configure-cors-in-sveltekit-to-access-your-api-routes-from-a-different-host/
 	if (event.url.pathname.startsWith('/api')) {
-		console.log('event request coming from url:', event.request.url)
-
 		if (event.request.method === 'OPTIONS') {
 			if (origin && allowedOrigins.includes(origin)) {
 				return new Response(null, {
