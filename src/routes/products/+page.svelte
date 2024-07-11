@@ -20,41 +20,44 @@
 		setProducts,
 		products,
 		clearProducts,
-		hasNoMoreData,
 		isLoading,
 		offset,
 		addProducts,
-		increaseOffset
+		increaseOffset,
+		canLoadMore
 	} from '$lib/stores/products'
 
-	onMount(() => {
-		setProducts(data.products)
-	})
-
-	onDestroy(() => {
-		clearProducts()
-	})
-
 	const loadMore = async () => {
-		if ($hasNoMoreData || $isLoading) return
-
-		isLoading.set(true)
-		increaseOffset()
-
-		const response = await fetch(`${PUBLIC_API_URL}/products?skip=${$offset}`)
-
-		if (!response.ok) {
-			console.error('Error loading more products')
+		if (!$canLoadMore) {
 			return
 		}
 
-		const data = await response.json()
+		isLoading.set(true)
 
-		addProducts(data.products)
-		isLoading.set(false)
+		try {
+			const response = await fetch(`${PUBLIC_API_URL}/products?offset=${$offset}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+
+			const responseData = await response.json()
+
+			if (!response.ok) {
+				throw new Error(responseData.message)
+			}
+
+			addProducts(responseData.products)
+			increaseOffset()
+		} catch (error) {
+			console.error(error)
+		} finally {
+			isLoading.set(false)
+		}
 	}
 
-	const openProduct = async (customEvent) => {
+	const openProduct = async (customEvent: CustomEvent) => {
 		const event = customEvent.detail
 		event.preventDefault()
 
@@ -67,14 +70,26 @@
 			goto(href)
 		}
 	}
+
+	onMount(() => {
+		setProducts(data.products)
+		increaseOffset()
+	})
+
+	onDestroy(() => {
+		clearProducts()
+	})
 </script>
 
-<h1>All products</h1>
+<h1 class="mb-6">All products</h1>
 
 <Products
 	products={$products}
-	on:openProduct={(event) => openProduct(event)}
-	on:loadMore={() => loadMore()}
+	on:openProduct={openProduct}
+	on:loadMore={() => {
+		console.log('loadMore event caught')
+		loadMore()
+	}}
 />
 
 {#if $page.state.selected}

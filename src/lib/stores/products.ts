@@ -1,14 +1,16 @@
-import { writable } from 'svelte/store'
+import { writable, derived } from 'svelte/store'
 
 export const products = writable([])
-
 export const hasNoMoreData = writable(false)
-export const isLoading = writable(false)
-
+export const isLoading = writable(true)
 export const offset = writable(0)
+export const canLoadMore = derived(
+	[isLoading, hasNoMoreData],
+	([$isLoading, $hasNoMoreData]) => !$isLoading && !$hasNoMoreData
+)
 
-export const increaseOffset = () => {
-	offset.update((offset) => offset + 30)
+export const increaseOffset = (nextOffsetValue = 30) => {
+	offset.update((offset) => offset + nextOffsetValue)
 }
 
 export const setProducts = (initialProducts) => {
@@ -19,11 +21,6 @@ export const setProducts = (initialProducts) => {
 export const addProducts = (newProducts) => {
 	products.update((products) => [...products, ...newProducts])
 	hasNoMoreData.set(newProducts.length < 30)
-	isLoading.set(false)
-}
-
-export const getProducts = () => {
-	return products
 }
 
 export const updateProductCategories = (

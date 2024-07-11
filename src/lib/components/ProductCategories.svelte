@@ -3,10 +3,16 @@
 	import { products, updateProductCategories } from '$lib/stores/products'
 
 	export let product
+
+	const deleteProduct = (id: string) => {
+		products.update((currentProducts) => {
+			return currentProducts.filter((product) => product.id !== id)
+		})
+	}
 </script>
 
 <form
-	class="mt-4 flex flex-wrap gap-2"
+	class="mt-4 flex w-full gap-2"
 	method="POST"
 	action="/products?/update"
 	use:enhance={({ formData }) => {
@@ -35,17 +41,25 @@
 		value={product.id}
 	/>
 	<input
-		class="w-full rounded bg-stone-100 px-2 placeholder-stone-500 md:w-auto dark:bg-stone-800"
+		class="rounded grow min-w-0 bg-stone-100 px-2 placeholder-stone-500 dark:bg-stone-900"
 		type="text"
 		placeholder="Add category"
 		name="categoryName"
 	/>
-	<button
-		type="submit"
-		class="w-full rounded bg-stone-200 px-2 md:w-auto dark:bg-stone-600 dark:text-stone-300"
-	>
-		Update
-	</button>
+	<div class="flex gap-x-2">
+		<button
+			type="submit"
+			class="w-full rounded bg-stone-200 px-2 md:w-auto dark:bg-stone-600 dark:text-stone-300"
+		>
+			Update
+		</button>
+		<button
+			class="w-full rounded bg-stone-200 px-2 md:w-auto dark:bg-stone-600 dark:text-stone-300"
+			on:click={() => deleteProduct(product.id)}
+		>
+			Delete
+		</button>
+	</div>
 </form>
 {#if product.categories?.length > 0}
 	<div>
